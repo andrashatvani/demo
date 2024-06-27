@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: dummy
+  cloud:
+    function:
+      definition:
+        dummyAggregate
+    stream:
+      bindings:
+        dummyAggregate-in-0:
+          destination: wrwks-bef-dummy-dummy-event-privat-1
+        dummyAggregate-out-0:
+          destination: wrwks-bef-dummy-dummy-aggregat-privat-1
+      kafka:
+        binder:
+          brokers: ${KAFKA_BROKER:kafka:9092}
+          replication-factor: 1
+          consumer-properties:
+            auto.offset.reset: earliest
+          producer-properties:
+            max.block.ms: 5000
+        streams:
+          binder:
+            brokers: ${KAFKA_BROKER:kafka:9092}
+            configuration:
+              # consumer
+              auto.offset.reset: earliest #must be earliest
+              #producer
+              max.block.ms: 60000
+              # common
+              replication.factor: 1
+              state.dir: ${KAFKA_STATE_DIR}/dev
+              num.stream.threads: 4
+              default.dsl.store: in_memory
+            required-acks: -1
+          bindings:
+            dummyAggregate-in-0:
+              consumer:
+                application-id: '${spring.cloud.stream.kafka.streams.binder.applicationId}-dummyAggregate'
+                start-offset: earliest
